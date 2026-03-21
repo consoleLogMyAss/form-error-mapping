@@ -1,43 +1,45 @@
-import { Directive, Input, OnInit, inject, DestroyRef } from '@angular/core';
-import {AbstractControl, FormGroup, FormGroupDirective} from '@angular/forms';
+import { Directive, OnInit, inject, DestroyRef } from '@angular/core';
+import { AbstractControl, FormGroup, FormGroupDirective } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { take } from 'rxjs';
 import { ValidationBusService } from '../services/validation-bus.service';
 import { ValidationError } from '../models/validation-error.model';
 
 @Directive({
   selector: '[formGroup]',
   standalone: true,
-  host: {
-    '(ngSubmit)': 'onFormSubmit()',
-  },
 })
 export class AutoFormErrorDirective implements OnInit {
   private formGroupDirective: FormGroupDirective = inject(FormGroupDirective);
   private validationBus: ValidationBusService = inject(ValidationBusService);
-  private destroyRef: DestroyRef = inject(DestroyRef);
+  private destroyRef = inject(DestroyRef);
 
-  onFormSubmit(): void {
-    this.clearAllErrors();
+  /**
+   * Clears errors from the whole form recursively.
+   * Useful when starting a new server request.
+   */
+  private clearAllErrors(): void {
+    const form = this.formGroupDirective.form;
+    this.recursiveClearErrors(form);
   }
 
-  private clearAllErrors(): void {
-    const form: FormGroup = this.formGroupDirective.form;
-
-    Object.keys(form.controls).forEach(key => {
-      const control: AbstractControl = form.get(key);
-
-      if (control) {
-        control.setErrors(null);
-      }
-    });
+  private recursiveClearErrors(control: AbstractControl): void {
+    control.setErrors(null);
+    if (control instanceof FormGroup) {
+      Object.keys(control.controls).forEach((key) => {
+        this.recursiveClearErrors(control.get(key)!);
+      });
+    }
   }
 
   ngOnInit(): void {
-    this.validationBus.validationErrors$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((errors) => {
+    this.validationBus.validationErrors$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((errors) => {
+      if (errors.length === 0) {
+        this.clearAllErrors();
+      } else {
         this.applyErrors(errors);
-      });
+      }
+    });
   }
 
   private applyErrors(errors: ValidationError[]): void {
@@ -46,18 +48,21 @@ export class AutoFormErrorDirective implements OnInit {
         acc[err.Path] = [];
       }
       acc[err.Path].push(err.Message);
-
       return acc;
     }, {} as Record<string, string[]>);
 
-    console.log(groupedErrors);
-
     Object.keys(groupedErrors).forEach((path) => {
-      const control: AbstractControl = this.formGroupDirective.form.get(path);
-
+      const control = this.formGroupDirective.form.get(path);
       if (control) {
         control.setErrors({ [path]: groupedErrors[path] });
         control.markAsTouched();
+
+        control.valueChanges.pipe(
+          take(1),
+          takeUntilDestroyed(this.destroyRef)
+        ).subscribe(() => {
+          control.setErrors(null);
+        });
       }
     });
   }
