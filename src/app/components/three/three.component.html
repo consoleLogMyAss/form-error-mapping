@@ -1,1 +1,19 @@
-<p>three works!</p>
+<h2>Component Three</h2>
+<form [formGroup]="formService.form" (ngSubmit)="onSubmit()">
+  <div class="field">
+    <label>Title</label>
+    <input type="text" formControlName="title">
+  </div>
+
+  <div class="field">
+    <label>Description</label>
+    <input type="text" formControlName="description">
+  </div>
+
+  <div class="field">
+    <label>Comment</label>
+    <input type="text" formControlName="comment">
+  </div>
+
+  <button type="submit">Submit</button>
+</form>
