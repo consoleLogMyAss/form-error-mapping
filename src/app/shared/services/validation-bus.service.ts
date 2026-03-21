@@ -6,10 +6,9 @@ import { ValidationError } from '../models/validation-error.model';
   providedIn: 'root'
 })
 export class ValidationBusService {
-  private validationErrors$$ = new Subject<ValidationError[]>();
-  public validationErrors$ = this.validationErrors$$.asObservable();
+  public validationErrors$ = new Subject<ValidationError[]>();
 
   public broadcast(errors: ValidationError[]): void {
-    this.validationErrors$$.next(errors);
+    this.validationErrors$.next(errors);
   }
 }
