@@ -10,4 +10,11 @@ export class ApiService {
       error: (err) => console.log(err),
     })
   }
+
+  public postData(body: any): void {
+    this.http.post('http://localhost:3000/testData', body).subscribe({
+      next: (res) => console.log(res),
+      error: (err) => console.log(err),
+    })
+  }
 }

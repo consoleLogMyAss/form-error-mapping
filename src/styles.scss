@@ -72,7 +72,7 @@ form {
   }
 }
 
-button[type="submit"] {
+button[type="submit"], button[type="button"] {
   background-color: #3f51b5;
   color: white;
   border: none;

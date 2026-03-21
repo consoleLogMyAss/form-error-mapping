@@ -18,4 +18,8 @@ export class OneComponent {
   protected onSubmit(): void {
     this.apiService.postTest(this.formService.form.value)
   }
+
+  protected postDataHandel() {
+    this.apiService.postData(this.formService.formData.value)
+  }
 }
