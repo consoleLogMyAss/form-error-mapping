@@ -7,17 +7,12 @@ import { ValidationError } from '../models/validation-error.model';
 
 @Directive({
   selector: '[formGroup]',
-  standalone: true,
 })
 export class AutoFormErrorDirective implements OnInit {
   private formGroupDirective: FormGroupDirective = inject(FormGroupDirective);
   private validationBus: ValidationBusService = inject(ValidationBusService);
   private destroyRef = inject(DestroyRef);
 
-  /**
-   * Clears errors from the whole form recursively.
-   * Useful when starting a new server request.
-   */
   private clearAllErrors(): void {
     const form = this.formGroupDirective.form;
     this.recursiveClearErrors(form);
@@ -25,6 +20,7 @@ export class AutoFormErrorDirective implements OnInit {
 
   private recursiveClearErrors(control: AbstractControl): void {
     control.setErrors(null);
+
     if (control instanceof FormGroup) {
       Object.keys(control.controls).forEach((key) => {
         this.recursiveClearErrors(control.get(key)!);
@@ -33,7 +29,9 @@ export class AutoFormErrorDirective implements OnInit {
   }
 
   ngOnInit(): void {
-    this.validationBus.validationErrors$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((errors) => {
+    this.validationBus.validationErrors$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((errors) => {
       if (errors.length === 0) {
         this.clearAllErrors();
       } else {
