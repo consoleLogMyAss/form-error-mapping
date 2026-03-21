@@ -7,19 +7,15 @@ import { ValidationError } from '../models/validation-error.model';
 
 @Directive({
   selector: '[formGroup]',
-  standalone: true,
 })
 export class AutoFormErrorDirective implements OnInit {
   private formGroupDirective: FormGroupDirective = inject(FormGroupDirective);
   private validationBus: ValidationBusService = inject(ValidationBusService);
-  private destroyRef = inject(DestroyRef);
+  private destroyRef: DestroyRef = inject(DestroyRef);
 
-  /**
-   * Clears errors from the whole form recursively.
-   * Useful when starting a new server request.
-   */
   private clearAllErrors(): void {
-    const form = this.formGroupDirective.form;
+    const form: FormGroup = this.formGroupDirective.form;
+
     this.recursiveClearErrors(form);
   }
 
@@ -34,15 +30,12 @@ export class AutoFormErrorDirective implements OnInit {
   }
 
   ngOnInit(): void {
-    // 1. Listen for server errors or clearing command ([]) from the bus
     this.validationBus.validationErrors$.pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((errors) => {
-      if (errors.length === 0) {
-        this.clearAllErrors();
-      } else {
-        this.applyErrors(errors);
-      }
+      errors.length
+        ? this.applyErrors(errors)
+        : this.clearAllErrors();
     });
   }
 
@@ -51,23 +44,23 @@ export class AutoFormErrorDirective implements OnInit {
       if (!acc[err.Path]) {
         acc[err.Path] = [];
       }
+
       acc[err.Path].push(err.Message);
+
       return acc;
     }, {} as Record<string, string[]>);
 
     Object.keys(groupedErrors).forEach((path) => {
-      // Angular's form.get(path) supports nested paths like 'address.city' out of the box
-      const control = this.formGroupDirective.form.get(path);
+      const control: AbstractControl = this.formGroupDirective.form.get(path);
+
       if (control) {
-        // Set the error on the control
         control.setErrors({ [path]: groupedErrors[path] });
         control.markAsTouched();
 
-        // Listen for ONE change to clear THIS specific error
         control.valueChanges
           .pipe(
             take(1),
-            takeUntil(this.validationBus.validationErrors$), // Kill if new errors or clear signal arrives
+            takeUntil(this.validationBus.validationErrors$),
             takeUntilDestroyed(this.destroyRef)
           )
           .subscribe(() => {
