@@ -1,7 +1,7 @@
 import { Directive, OnInit, inject, DestroyRef } from '@angular/core';
 import { AbstractControl, FormGroup, FormGroupDirective } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { take, takeUntil } from 'rxjs';
+import {map, take, takeUntil} from 'rxjs';
 import { ValidationBusService } from '../services/validation-bus.service';
 import { ValidationError } from '../models/validation-error.model';
 
@@ -15,6 +15,9 @@ export class AutoFormErrorDirective implements OnInit {
 
   ngOnInit(): void {
     this.validationBus.validationErrors$.pipe(
+      map((errors: ValidationError[]) => {
+        return errors.filter(error => Boolean(error.Path))
+      }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((errors) => this.applyErrors(errors));
   }
