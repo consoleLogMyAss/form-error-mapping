@@ -13,30 +13,10 @@ export class AutoFormErrorDirective implements OnInit {
   private validationBus: ValidationBusService = inject(ValidationBusService);
   private destroyRef: DestroyRef = inject(DestroyRef);
 
-  private clearAllErrors(): void {
-    const form: FormGroup = this.formGroupDirective.form;
-
-    this.recursiveClearErrors(form);
-  }
-
-  private recursiveClearErrors(control: AbstractControl): void {
-    control.setErrors(null);
-
-    if (control instanceof FormGroup) {
-      Object.keys(control.controls).forEach((key) => {
-        this.recursiveClearErrors(control.get(key)!);
-      });
-    }
-  }
-
   ngOnInit(): void {
     this.validationBus.validationErrors$.pipe(
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe((errors) => {
-      errors.length
-        ? this.applyErrors(errors)
-        : this.clearAllErrors();
-    });
+    ).subscribe((errors) => this.applyErrors(errors));
   }
 
   private applyErrors(errors: ValidationError[]): void {
