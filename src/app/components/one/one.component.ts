@@ -16,10 +16,10 @@ export class OneComponent {
   protected formService: FormService = inject(FormService);
 
   protected onSubmit(): void {
-    this.apiService.postTest(this.formService.form.value)
+    this.apiService.postTest(this.formService.form.value, this.formService.form)
   }
 
   protected postDataHandel() {
-    this.apiService.postData(this.formService.formData.value)
+    this.apiService.postData(this.formService.formData.value, this.formService.formData)
   }
 }

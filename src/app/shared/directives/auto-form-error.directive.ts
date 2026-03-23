@@ -1,9 +1,9 @@
 import { Directive, OnInit, inject, DestroyRef } from '@angular/core';
-import { AbstractControl, FormGroup, FormGroupDirective } from '@angular/forms';
+import {AbstractControl, FormGroup, FormGroupDirective} from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {map, take, takeUntil} from 'rxjs';
+import { filter, map, take, takeUntil } from 'rxjs';
 import { ValidationBusService } from '../services/validation-bus.service';
-import { ValidationError } from '../models/validation-error.model';
+import { ValidationError, ValidationEvent } from '../models/validation-error.model';
 
 @Directive({
   selector: '[formGroup]',
@@ -15,14 +15,20 @@ export class AutoFormErrorDirective implements OnInit {
 
   ngOnInit(): void {
     this.validationBus.validationErrors$.pipe(
-      map((errors: ValidationError[]) => {
-        return errors.filter(error => Boolean(error.Path))
+      map((event: ValidationEvent) => {
+        return {
+          errors:  event.errors.filter(error => Boolean(error.Path)),
+          form: event.form,
+        }
       }),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe((errors) => this.applyErrors(errors));
+    ).subscribe((event) => this.applyErrors(event));
   }
 
-  private applyErrors(errors: ValidationError[]): void {
+  private applyErrors(event: ValidationEvent): void {
+    const errors: ValidationError[] = event.errors;
+    const form: FormGroup = event.form || this.formGroupDirective.form;
+
     const groupedErrors = errors.reduce((acc, err) => {
       if (!acc[err.Path]) {
         acc[err.Path] = [];
@@ -34,7 +40,7 @@ export class AutoFormErrorDirective implements OnInit {
     }, {} as Record<string, string[]>);
 
     Object.keys(groupedErrors).forEach((path) => {
-      const control: AbstractControl = this.formGroupDirective.form.get(path);
+      const control: AbstractControl = form.get(path);
 
       if (control) {
         control.setErrors({ [path]: groupedErrors[path] });

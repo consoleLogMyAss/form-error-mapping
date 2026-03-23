@@ -7,8 +7,9 @@ export class FormService {
     comment: new FormControl(''),
   });
 
+
   public formData = new FormGroup({
-    firstName: new FormControl(''),
+    title: new FormControl(''),
     lastName: new FormControl(''),
     age: new FormControl(''),
   });

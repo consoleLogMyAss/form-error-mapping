@@ -1,8 +1,8 @@
-import {HttpClient} from '@angular/common/http';
-import {inject} from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { inject } from '@angular/core';
 
 export class ApiService {
-  private http: HttpClient = inject(HttpClient)
+  private http: HttpClient = inject(HttpClient);
 
   public postTest(body: any): void {
     this.http.post('http://localhost:3000/test', body).subscribe({
