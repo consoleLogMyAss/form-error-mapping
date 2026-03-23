@@ -8,14 +8,10 @@ export const validationInterceptor: HttpInterceptorFn = (req, next) => {
   const validationBus = inject(ValidationBusService);
   const form = req.context.get(VALIDATION_FORM);
 
-  console.log(form);
-
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 400 && error.error?.Errors) {
         const response = error.error as ValidationResponse;
-
-        console.log(response);
 
         validationBus.broadcast(response.Errors, form);
       }
