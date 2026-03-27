@@ -6,4 +6,11 @@
       line-height: 10px;
     }
   }
+
+  fieldset {
+    padding: 12px;
+    border-radius: 8px;
+    border-color: orange;
+    outline: none;
+  }
 }

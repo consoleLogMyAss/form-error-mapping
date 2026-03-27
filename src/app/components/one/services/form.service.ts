@@ -2,9 +2,13 @@ import { FormControl, FormGroup } from '@angular/forms';
 
 export class FormService {
   public form = new FormGroup({
-    title: new FormControl(''),
-    description: new FormControl(''),
-    comment: new FormControl(''),
+    carName: new FormControl(''),
+    model: new FormControl(''),
+    charcter: new FormGroup({
+      color : new FormControl(''),
+      speed : new FormControl(''),
+    }),
+
   });
 
 
