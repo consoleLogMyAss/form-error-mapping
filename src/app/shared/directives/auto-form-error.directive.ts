@@ -49,25 +49,23 @@ export class AutoFormErrorDirective implements OnInit {
     }, {} as Record<string, string[]>);
 
     Object.keys(groupedErrors).forEach((path) => {
-      const control: AbstractControl | null = form.get(path);
+      const control: AbstractControl = form.get(path);
 
       if (control) {
         if (this.activeValidators.has(control)) {
           control.removeValidators(this.activeValidators.get(control)!);
         }
 
-        const initialValue = control.value;
-        const serverError = { [path]: groupedErrors[path] };
+        const initialValue: typeof control.value= control.value;
 
         const serverValidator: ValidatorFn = (c: AbstractControl) => {
-          return c.value === initialValue ? serverError : null;
+          return { [path]: groupedErrors[path] }
         };
 
         this.activeValidators.set(control, serverValidator);
 
         control.addValidators(serverValidator);
-        control.updateValueAndValidity({ emitEvent: false });
-        control.markAsTouched();
+        control.updateValueAndValidity();
 
         control.valueChanges
           .pipe(

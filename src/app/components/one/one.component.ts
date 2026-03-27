@@ -20,7 +20,6 @@ export class OneComponent {
   }
 
   protected postDataHandel() {
-    console.log(this.formService.form.value);
     if (this.formService.formData.invalid) {
       this.formService.formData.markAllAsTouched();
       this.formService.formData.markAllAsDirty();
