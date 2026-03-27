@@ -46,18 +46,19 @@ export class AutoFormErrorDirective implements OnInit {
 
     const groupedErrors: TGroupedErrors = this.createGroupedErrors(errors);
     console.log(groupedErrors);
+
     this.applyServerErrorValidator(form, groupedErrors);
   }
 
   private createGroupedErrors(errors: TValidationError[]): TGroupedErrors {
-    return errors.reduce((acc, err) => {
-      const normalizedPath: string = err.Path.replace(/\[\d+]/, '');
+    return errors.reduce((acc, err, index) => {
+      const path: string = err.Path;
 
-      if (!acc[normalizedPath]) {
-        acc[normalizedPath] = {};
+      if (!acc[path]) {
+        acc[path] = {};
       }
 
-      acc[normalizedPath][err.Path] = err.Message;
+      acc[path][index] = err.Message;
 
       return acc;
     }, {} as TGroupedErrors);
@@ -65,7 +66,7 @@ export class AutoFormErrorDirective implements OnInit {
 
   private applyServerErrorValidator(form: FormGroup, groupedErrors: TGroupedErrors): void {
     Object.keys(groupedErrors).forEach(path => {
-      const control: AbstractControl = form.get(path);
+      const control: AbstractControl = this.getControl(form, path);
 
       if (!control) return;
 
@@ -97,5 +98,20 @@ export class AutoFormErrorDirective implements OnInit {
           control.updateValueAndValidity({ emitEvent: false });
         });
     });
+  }
+
+  private getControl(form: FormGroup, path: string): AbstractControl {
+    const splitPath = path
+      .replace(/\[(\d+)]/g, '.$1')
+      .split('.')
+      .map(part => {
+        const num: number = Number(part);
+
+        return isNaN(num) ? part : num;
+      });
+
+    console.log({splitPath});
+
+    return form.get(splitPath);
   }
 }

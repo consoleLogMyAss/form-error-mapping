@@ -23,4 +23,13 @@ export class ApiService {
       error: (err) => console.log(err),
     })
   }
+
+  public postArrData(body: any, form: FormGroup): void {
+    this.http.post('http://localhost:3000/arrData', body, {
+      context: new HttpContext().set(VALIDATION_FORM, form)
+    }).subscribe({
+      next: (res) => console.log(res),
+      error: (err) => console.log(err),
+    })
+  }
 }

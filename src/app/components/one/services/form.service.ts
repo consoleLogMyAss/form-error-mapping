@@ -1,4 +1,4 @@
-import { FormControl, FormGroup } from '@angular/forms';
+import {FormArray, FormControl, FormGroup} from '@angular/forms';
 
 export class FormService {
   public form = new FormGroup({
@@ -16,4 +16,23 @@ export class FormService {
     lastName: new FormControl(''),
     age: new FormControl(''),
   });
+
+
+  public formArr: FormGroup = new FormGroup({
+    animal: new FormControl(''),
+    sounds: new FormArray([
+      new FormGroup({
+        pips: new FormControl(''),
+        pops: new FormControl(''),
+      }),
+      new FormGroup({
+        pips: new FormControl(''),
+        pops: new FormControl(''),
+      }),
+      new FormGroup({
+        pips: new FormControl(''),
+        pops: new FormControl(''),
+      }),
+    ])
+  })
 }

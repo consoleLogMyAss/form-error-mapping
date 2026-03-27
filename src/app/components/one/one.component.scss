@@ -7,6 +7,17 @@
     }
   }
 
+  .form-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+
+    form {
+      width: 400px
+
+    }
+  }
+
   fieldset {
     padding: 12px;
     border-radius: 8px;

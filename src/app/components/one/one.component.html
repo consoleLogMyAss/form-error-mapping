@@ -1,87 +1,134 @@
 <h2>Component One</h2>
-<form [formGroup]="formService.form" (ngSubmit)="onSubmit()">
-  <div class="field">
-    <label>Car name</label>
-    <input type="text" formControlName="carName">
-    @let carErrors = formService.form.get('carName')?.errors || {};
-
-    @for (error of carErrors | keyvalue; track error.key) {
-      <small style="color: tomato">{{ error.value }}</small>
-    }
-  </div>
-
-  <div class="field">
-    <label>Model</label>
-    <input type="text" formControlName="model">
-    @let modelErrors = formService.form.get('model')?.errors || {};
-
-    @for (error of modelErrors | keyvalue; track error.key) {
-      <small style="color: tomato">{{ error.value }}</small>
-    }
-  </div>
-
-  <fieldset class="field" formGroupName="charcter">
+<div class="form-wrapper">
+  <form [formGroup]="formService.form" (ngSubmit)="onSubmit()">
     <div class="field">
-      <label>Color</label>
-      <input type="text" formControlName="color">
-      @let colorErrors = formService.form.get('charcter.color')?.errors || {};
+      <label>Car name</label>
+      <input type="text" formControlName="carName">
+      @let carErrors = formService.form.get('carName')?.errors || {};
 
-      @for (error of colorErrors | keyvalue; track error.key) {
+      @for (error of carErrors | keyvalue; track error.key) {
         <small style="color: tomato">{{ error.value }}</small>
       }
     </div>
 
     <div class="field">
-      <label>Sped</label>
-      <input type="text" formControlName="speed">
-      @let speedErrors = formService.form.get('charcter.speed')?.errors || {};
+      <label>Model</label>
+      <input type="text" formControlName="model">
+      @let modelErrors = formService.form.get('model')?.errors || {};
 
-      @for (error of speedErrors | keyvalue; track error.key) {
+      @for (error of modelErrors | keyvalue; track error.key) {
         <small style="color: tomato">{{ error.value }}</small>
       }
     </div>
-  </fieldset>
+
+    <fieldset class="field" formGroupName="charcter">
+      <div class="field">
+        <label>Color</label>
+        <input type="text" formControlName="color">
+        @let colorErrors = formService.form.get('charcter.color')?.errors || {};
+
+        @for (error of colorErrors | keyvalue; track error.key) {
+          <small style="color: tomato">{{ error.value }}</small>
+        }
+      </div>
+
+      <div class="field">
+        <label>Sped</label>
+        <input type="text" formControlName="speed">
+        @let speedErrors = formService.form.get('charcter.speed')?.errors || {};
+
+        @for (error of speedErrors | keyvalue; track error.key) {
+          <small style="color: tomato">{{ error.value }}</small>
+        }
+      </div>
+    </fieldset>
 
 
-  <button type="submit">
-    Submit
-  </button>
-</form>
+    <button type="submit">
+      Submit
+    </button>
+  </form>
 
-<br>
 
-<form [formGroup]="formService.formData">
-  <div class="field">
-    <label>Title</label>
-    <input type="text" formControlName="title">
-    @let titleErrors = formService.formData.get('title')?.errors || {};
+  <form [formGroup]="formService.formData">
+    <div class="field">
+      <label>Title</label>
+      <input type="text" formControlName="title">
+      @let titleErrors = formService.formData.get('title')?.errors || {};
 
-    @for (error of titleErrors | keyvalue; track error.key) {
-      <small style="color: tomato">{{ error.value }}</small>
-    }
-  </div>
+      @for (error of titleErrors | keyvalue; track error.key) {
+        <small style="color: tomato">{{ error.value }}</small>
+      }
+    </div>
 
-  <div class="field">
-    <label>Last name</label>
-    <input type="text" formControlName="lastName">
-    @let lastNameErrors = formService.formData.get('lastName')?.errors || {};
+    <div class="field">
+      <label>Last name</label>
+      <input type="text" formControlName="lastName">
+      @let lastNameErrors = formService.formData.get('lastName')?.errors || {};
 
-    @for (error of lastNameErrors | keyvalue; track error.key) {
-      <small style="color: tomato">{{ error.value }}</small>
-    }
-  </div>
+      @for (error of lastNameErrors | keyvalue; track error.key) {
+        <small style="color: tomato">{{ error.value }}</small>
+      }
+    </div>
 
-  <div class="field">
-    <label>Age</label>
-    <input type="text" formControlName="age">
-    @let ageErrors = formService.formData.get('age')?.errors || {};
+    <div class="field">
+      <label>Age</label>
+      <input type="text" formControlName="age">
+      @let ageErrors = formService.formData.get('age')?.errors || {};
 
-    @for (error of ageErrors | keyvalue; track error.key) {
-      <small style="color: tomato">{{ error.value }}</small>
-    }
-  </div>
+      @for (error of ageErrors | keyvalue; track error.key) {
+        <small style="color: tomato">{{ error.value }}</small>
+      }
+    </div>
 
-  <button type="button" (click)="postDataHandel()">
-    Post Data
-  </button>
-</form>
+    <button type="button" (click)="postDataHandel()">
+      Post Data
+    </button>
+  </form>
+
+  <form [formGroup]="formService.formArr">
+    <div class="field">
+      <label>Animal:</label>
+      <input type="text" formControlName="animal" />
+      @let animalErrors = formService.formArr.get('animal')?.errors || {};
+
+      @for (error of animalErrors | keyvalue; track error.key) {
+        <small style="color: tomato">{{ error.value }}</small>
+      }
+    </div>
+
+    <!-- sounds -->
+    <div formArrayName="sounds">
+      @for (_ of controls; track $index) {
+        <div [formGroupName]="$index">
+          <h4>Sound {{ $index + 1 }}</h4>
+
+          <div class="field">
+            <label>Pips:</label>
+            <input formControlName="pips" />
+            @let pipsErrors = formService.formArr.get(['sounds', $index, 'pips'])?.errors || {};
+
+            @for (error of pipsErrors | keyvalue; track error.key) {
+              <small style="color: tomato">{{ error.value }}</small>
+            }
+          </div>
+
+          <div class="field">
+            <label>Pops:</label>
+            <input formControlName="pops" />
+            @let popsErrors = formService.formArr.get(['sounds', $index, 'pops'])?.errors || {};
+
+            @for (error of popsErrors | keyvalue; track error.key) {
+              <small style="color: tomato">{{ error.value }}</small>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <button type="button" (click)="arrDataHandel()">
+      Post Arr
+    </button>
+  </form>
+</div>
+
