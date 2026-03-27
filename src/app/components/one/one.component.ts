@@ -2,10 +2,14 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { OneImports, OneProviders } from './imports';
 import { ApiService } from './services/api.service';
 import { FormService } from './services/form.service';
+import {KeyValuePipe} from '@angular/common';
 
 @Component({
   selector: 'one',
-  imports: OneImports,
+  imports: [
+    OneImports,
+    KeyValuePipe
+  ],
   providers: OneProviders,
   templateUrl: './one.component.html',
   styleUrl: './one.component.scss',
@@ -20,7 +24,8 @@ export class OneComponent {
   }
 
   protected postDataHandel() {
-    if (this.formService.formData.invalid) {
+    console.log(this.formService.formData);
+  /*  if (this.formService.formData.invalid) {
       this.formService.formData.markAllAsTouched();
       this.formService.formData.markAllAsDirty();
 
@@ -28,7 +33,7 @@ export class OneComponent {
       this.formService.formData.get('lastName').updateValueAndValidity()
       this.formService.formData.get('age').updateValueAndValidity()
       return;
-    }
+    }*/
 
 
     this.apiService.postData(this.formService.formData.value, this.formService.formData)

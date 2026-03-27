@@ -1,3 +1,9 @@
 :host {
   display: block;
+
+  .field {
+    small {
+      line-height: 10px;
+    }
+  }
 }

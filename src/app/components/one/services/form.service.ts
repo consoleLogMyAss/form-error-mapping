@@ -1,4 +1,4 @@
-import {FormControl, FormGroup, Validators} from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 
 export class FormService {
   public form = new FormGroup({
@@ -9,8 +9,8 @@ export class FormService {
 
 
   public formData = new FormGroup({
-    title: new FormControl('', Validators.required),
-    lastName: new FormControl('', Validators.required),
-    age: new FormControl('', Validators.required),
+    title: new FormControl(''),
+    lastName: new FormControl(''),
+    age: new FormControl(''),
   });
 }

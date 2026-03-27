@@ -26,16 +26,31 @@
   <div class="field">
     <label>Title</label>
     <input type="text" formControlName="title">
+    @let titleErrors = formService.formData.get('title')?.errors || {};
+
+    @for (error of titleErrors | keyvalue; track error.key) {
+      <small style="color: tomato">{{ error.value }}</small>
+    }
   </div>
 
   <div class="field">
     <label>Last name</label>
     <input type="text" formControlName="lastName">
+    @let lastNameErrors = formService.formData.get('lastName')?.errors || {};
+
+    @for (error of lastNameErrors | keyvalue; track error.key) {
+      <small style="color: tomato">{{ error.value }}</small>
+    }
   </div>
 
   <div class="field">
     <label>Age</label>
     <input type="text" formControlName="age">
+    @let ageErrors = formService.formData.get('age')?.errors || {};
+
+    @for (error of ageErrors | keyvalue; track error.key) {
+      <small style="color: tomato">{{ error.value }}</small>
+    }
   </div>
 
   <button type="button" (click)="postDataHandel()">
