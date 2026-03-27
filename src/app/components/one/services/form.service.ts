@@ -8,7 +8,6 @@ export class FormService {
       color : new FormControl(''),
       speed : new FormControl(''),
     }),
-
   });
 
 

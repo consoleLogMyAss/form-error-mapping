@@ -45,13 +45,13 @@ export class AutoFormErrorDirective implements OnInit {
     const form: FormGroup = event.form || this.formGroupDirective.form;
 
     const groupedErrors: TGroupedErrors = this.createGroupedErrors(errors);
-
+    console.log(groupedErrors);
     this.applyServerErrorValidator(form, groupedErrors);
   }
 
   private createGroupedErrors(errors: TValidationError[]): TGroupedErrors {
     return errors.reduce((acc, err) => {
-      const normalizedPath: string = err.Path.replace(/\[\d+]$/, '');
+      const normalizedPath: string = err.Path.replace(/\[\d+]/, '');
 
       if (!acc[normalizedPath]) {
         acc[normalizedPath] = {};
