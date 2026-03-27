@@ -1,5 +1,5 @@
 import { Directive, OnInit, inject, DestroyRef } from '@angular/core';
-import { AbstractControl, FormGroup, FormGroupDirective } from '@angular/forms';
+import { AbstractControl, FormGroup, FormGroupDirective, ValidatorFn } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter, map, take, takeUntil } from 'rxjs';
 import { ValidationBusService } from '../services/validation-bus.service';
@@ -12,6 +12,8 @@ export class AutoFormErrorDirective implements OnInit {
   private formGroupDirective: FormGroupDirective = inject(FormGroupDirective);
   private validationBus: ValidationBusService = inject(ValidationBusService);
   private destroyRef: DestroyRef = inject(DestroyRef);
+
+  private activeValidators = new WeakMap<AbstractControl, ValidatorFn>();
 
   ngOnInit(): void {
     this.validationBus.validationErrors$.pipe(
@@ -47,20 +49,37 @@ export class AutoFormErrorDirective implements OnInit {
     }, {} as Record<string, string[]>);
 
     Object.keys(groupedErrors).forEach((path) => {
-      const control: AbstractControl = form.get(path);
+      const control: AbstractControl | null = form.get(path);
 
       if (control) {
-        control.setErrors({ [path]: groupedErrors[path] });
+        if (this.activeValidators.has(control)) {
+          control.removeValidators(this.activeValidators.get(control)!);
+        }
+
+        const initialValue = control.value;
+        const serverError = { [path]: groupedErrors[path] };
+
+        const serverValidator: ValidatorFn = (c: AbstractControl) => {
+          return c.value === initialValue ? serverError : null;
+        };
+
+        this.activeValidators.set(control, serverValidator);
+
+        control.addValidators(serverValidator);
+        control.updateValueAndValidity({ emitEvent: false });
         control.markAsTouched();
 
         control.valueChanges
           .pipe(
+            filter((val) => val !== initialValue),
             take(1),
             takeUntil(this.validationBus.validationErrors$),
             takeUntilDestroyed(this.destroyRef)
           )
           .subscribe(() => {
-            control.setErrors(null);
+            control.removeValidators(serverValidator);
+            this.activeValidators.delete(control);
+            control.updateValueAndValidity({ emitEvent: false });
           });
       }
     });

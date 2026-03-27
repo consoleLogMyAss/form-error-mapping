@@ -20,6 +20,18 @@ export class OneComponent {
   }
 
   protected postDataHandel() {
+    console.log(this.formService.form.value);
+    if (this.formService.formData.invalid) {
+      this.formService.formData.markAllAsTouched();
+      this.formService.formData.markAllAsDirty();
+
+      this.formService.formData.get('title').updateValueAndValidity()
+      this.formService.formData.get('lastName').updateValueAndValidity()
+      this.formService.formData.get('age').updateValueAndValidity()
+      return;
+    }
+
+
     this.apiService.postData(this.formService.formData.value, this.formService.formData)
   }
 }
