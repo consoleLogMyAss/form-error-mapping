@@ -1,4 +1,4 @@
-import { DestroyRef, Directive, inject, OnInit } from '@angular/core';
+import {DestroyRef, Directive, inject, input, InputSignal, OnDestroy, OnInit} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormGroup, FormGroupDirective, ValidatorFn } from '@angular/forms';
 
@@ -9,12 +9,14 @@ import {ValidationBusService} from '../services/validation-bus.service';
 @Directive({
   selector: '[formGroup]',
 })
-export class AutoFormErrorDirective implements OnInit {
+export class AutoFormErrorDirective implements OnInit, OnDestroy {
+  public errorPathMap: InputSignal<Record<string, string>> = input({});
+
   private formGroupDirective: FormGroupDirective = inject(FormGroupDirective);
   private validationBus: ValidationBusService = inject(ValidationBusService);
   private destroyRef: DestroyRef = inject(DestroyRef);
 
-  private activeValidators: WeakMap<AbstractControl, ValidatorFn> = new WeakMap<
+  private activeValidators: Map<AbstractControl, ValidatorFn> = new Map<
     AbstractControl,
     ValidatorFn
   >();
@@ -40,12 +42,19 @@ export class AutoFormErrorDirective implements OnInit {
       .subscribe(event => this.applyErrors(event));
   }
 
+  ngOnDestroy(): void {
+    this.activeValidators.forEach((validator, control) => {
+      control.removeValidators(validator);
+      control.updateValueAndValidity({ emitEvent: false });
+    });
+    this.activeValidators.clear();
+  }
+
   private applyErrors(event: TValidationEvent): void {
     const errors: TValidationError[] = event.errors;
     const form: FormGroup = event.form || this.formGroupDirective.form;
 
     const groupedErrors: TGroupedErrors = this.createGroupedErrors(errors);
-    console.log(groupedErrors);
 
     this.applyServerErrorValidator(form, groupedErrors);
   }
@@ -101,6 +110,8 @@ export class AutoFormErrorDirective implements OnInit {
   }
 
   private getControl(form: FormGroup, path: string): AbstractControl {
+    path = this.errorPathMap()[path] || path;
+
     const splitPath = path
       .replace(/\[(\d+)]/g, '.$1')
       .split('.')
@@ -109,8 +120,6 @@ export class AutoFormErrorDirective implements OnInit {
 
         return isNaN(num) ? part : num;
       });
-
-    console.log({splitPath});
 
     return form.get(splitPath);
   }
